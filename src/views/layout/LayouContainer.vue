@@ -17,6 +17,10 @@ import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const router = useRouter()
 
+onMounted(() => {
+  userStore.getUser()
+})
+
 const handleCommand = async (key) => {
   if (key === 'logout') {
     await ElMessageBox.confirm('你确认要进行退出么', '温馨提示', {
@@ -77,6 +81,36 @@ const handleCommand = async (key) => {
     </el-aside>
     <el-container>
       <el-header>
+      <div>
+          <strong>{{
+            userStore.user.nickname || userStore.user.username
+          }}</strong>
+        </div>
+        <el-dropdown placement="bottom-end" @command="handleCommand">
+          <!-- 展示给用户，默认看到的 -->
+          <span class="el-dropdown__box">
+            <el-avatar :src="userStore.user.user_pic || avatar" />
+            <el-icon><CaretBottom /></el-icon>
+          </span>
+
+          <!-- 折叠的下拉部分 -->
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="profile" :icon="User"
+                >基本资料</el-dropdown-item
+              >
+              <el-dropdown-item command="avatar" :icon="Crop"
+                >更换头像</el-dropdown-item
+              >
+              <el-dropdown-item command="password" :icon="EditPen"
+                >重置密码</el-dropdown-item
+              >
+              <el-dropdown-item command="logout" :icon="SwitchButton"
+                >退出登录</el-dropdown-item
+              >
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </el-header>
       <el-main>
         <router-view></router-view>

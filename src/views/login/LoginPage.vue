@@ -1,214 +1,196 @@
-<script setup>
-import { userRegisterService, userLoginService } from '@/api/user.js'
-import { User, Lock } from '@element-plus/icons-vue'
-import { ref, watch } from 'vue'
-import { useUserStore } from '@/stores/use'
-import { useRouter } from 'vue-router'
-const isRegister = ref(false)
-const form = ref()
-
-const formModel = ref({
-  username: '',
-  password: '',
-  repassword: ''
-})
-
-const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 5, max: 10, message: '用户名必须是 5-10位 的字符', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    {
-      pattern: /^\S{6,15}$/,
-      message: '密码必须是 6-15位 的非空字符',
-      trigger: 'blur'
-    }
-  ],
-  repassword: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    {
-      pattern: /^\S{6,15}$/,
-      message: '密码必须是 6-15位 的非空字符',
-      trigger: 'blur'
-    },
-    {
-      validator: (rule, value, callback) => {
-        // 判断 value 和 当前 form 中收集的 password 是否一致
-        if (value !== formModel.value.password) {
-          callback(new Error('两次输入密码不一致'))
-        } else {
-          callback() // 就算校验成功，也需要callback
-        }
-      },
-      trigger: 'blur'
-    }
-  ]
-}
-
-const register = async () => {
-  // 注册成功之前，先进行校验，校验成功 → 请求，校验失败 → 自动提示
-  await form.value.validate()
-  await userRegisterService(formModel.value)
-  ElMessage.success('注册成功')
-  isRegister.value = false
-}
-
-const userStore = useUserStore()
-const router = useRouter()
-const login = async () => {
-  await form.value.validate()
-  const res = await userLoginService(formModel.value)
-  userStore.setToken(res.data.token)
-  ElMessage.success('登录成功')
-  router.push('/')
-}
-
-// 切换的时候，重置表单内容
-watch(isRegister, () => {
-  formModel.value = {
-    username: '',
-    password: '',
-    repassword: ''
-  }
-})
-</script>
-
 <template>
-  <el-row class="login-page">
-    <el-col :span="12" class="bg"></el-col>
-    <el-col :span="6" :offset="3" class="form">
-      <!-- 注册相关表单 -->
-      <el-form
-        :model="formModel"
-        :rules="rules"
-        ref="form"
-        size="large"
-        autocomplete="off"
-        v-if="isRegister"
-      >
-        <el-form-item>
-          <h1>注册</h1>
-        </el-form-item>
-        <el-form-item prop="username">
-          <el-input
-            v-model="formModel.username"
-            :prefix-icon="User"
-            placeholder="请输入用户名"
-          ></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input
-            v-model="formModel.password"
-            :prefix-icon="Lock"
-            type="password"
-            placeholder="请输入密码"
-          ></el-input>
-        </el-form-item>
-        <el-form-item prop="repassword">
-          <el-input
-            v-model="formModel.repassword"
-            :prefix-icon="Lock"
-            type="password"
-            placeholder="请输入再次密码"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            @click="register"
-            class="button"
-            type="primary"
-            auto-insert-space
-          >
-            注册
-          </el-button>
-        </el-form-item>
-        <el-form-item class="flex">
-          <el-link type="info" :underline="false" @click="isRegister = false">
-            ← 返回
-          </el-link>
-        </el-form-item>
-      </el-form>
-
-      <!-- 登录相关表单 -->
-      <el-form
-        :model="formModel"
-        :rules="rules"
-        ref="form"
-        size="large"
-        autocomplete="off"
-        v-else
-      >
-        <el-form-item>
-          <h1>登录</h1>
-        </el-form-item>
-        <el-form-item prop="username">
-          <el-input
-            v-model="formModel.username"
-            :prefix-icon="User"
-            placeholder="请输入用户名"
-          ></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input
-            v-model="formModel.password"
-            name="password"
-            :prefix-icon="Lock"
-            type="password"
-            placeholder="请输入密码"
-          ></el-input>
-        </el-form-item>
-        <el-form-item class="flex">
-          <div class="flex">
-            <el-checkbox>记住我</el-checkbox>
-            <el-link type="primary" :underline="false">忘记密码？</el-link>
-          </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            @click="login"
-            class="button"
-            type="primary"
-            auto-insert-space
-            >登录</el-button
-          >
-        </el-form-item>
-        <el-form-item class="flex">
-          <el-link type="info" :underline="false" @click="isRegister = true">
-            注册 →
-          </el-link>
-        </el-form-item>
-      </el-form>
-    </el-col>
-  </el-row>
+  <div class="scene-container">
+    <div ref="sceneContainer" class="three-scene">
+      <LoginUI></LoginUI>
+    </div>
+  </div>
 </template>
 
-<style lang="scss" scoped>
-.login-page {
-  height: 100vh;
-  background-color: #fff;
-  .bg {
-    background: linear-gradient(to right, transparent,rgb(255, 255, 255)),url('@/assets/logo2.png') no-repeat 60% center / 240px auto,
-      url('@/assets/login_bg.jpg') no-repeat center / cover;
-    border-radius: 0 20px 20px 0;
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import * as THREE from 'three';
+import LoginUI from './LoginUI.vue';
+
+const sceneContainer = ref(null);
+
+// Three.js变量
+let scene, camera, renderer;
+let clouds = [];
+let mouseX = 0, mouseY = 0;
+let targetX = 0, targetY = 0;
+let animationFrameId = null;
+const windowHalfX = window.innerWidth / 2;
+const windowHalfY = window.innerHeight / 2;
+
+// 创建云朵
+const createCloud = (x, y, z) => {
+  const cloudGroup = new THREE.Group();
+  
+  // 创建云朵的多个球体
+  const cloudGeo = new THREE.SphereGeometry(1, 8, 8);
+  const cloudMat = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.9,
+    flatShading: true
+  });
+  
+  // 创建多个球体组合成云朵
+  for (let i = 0; i < 5; i++) {
+    const sphere = new THREE.Mesh(cloudGeo, cloudMat);
+    
+    // 随机位置和大小
+    const offsetX = Math.random() * 3 - 1.5;
+    const offsetY = Math.random() * 1.5 - 0.75;
+    const offsetZ = Math.random() * 1.5 - 0.75;
+    const scale = 0.5 + Math.random() * 0.7;
+    
+    sphere.position.set(offsetX, offsetY, offsetZ);
+    sphere.scale.set(scale, scale, scale);
+    
+    cloudGroup.add(sphere);
   }
-  .form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    user-select: none;
-    .title {
-      margin: 0 auto;
-    }
-    .button {
-      width: 100%;
-    }
-    .flex {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-    }
+  
+  cloudGroup.position.set(x, y, z);
+  scene.add(cloudGroup);
+  
+  // 添加一些随机属性用于动画
+  cloudGroup.userData = {
+    speed: 0.01 + Math.random() * 0.02,
+    rotationSpeed: 0.001 + Math.random() * 0.002,
+    scale: 0.8 + Math.random() * 0.4
+  };
+  
+  cloudGroup.scale.multiplyScalar(cloudGroup.userData.scale);
+  
+  return cloudGroup;
+};
+
+// 初始化场景
+const initScene = () => {
+  // 创建场景
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87CEEB);
+  scene.fog = new THREE.Fog(0x87CEEB, 10, 100);
+  
+  // 创建相机
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+  
+  // 创建渲染器
+  renderer = new THREE.WebGLRenderer({ 
+    antialias: true, 
+    alpha: true,
+    powerPreference: "high-performance"
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  sceneContainer.value.appendChild(renderer.domElement);
+  
+  // 添加光源
+  const ambientLight = new THREE.AmbientLight(0x777777); // 增加环境光亮度
+  scene.add(ambientLight);
+  
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // 增加主光源强度
+  directionalLight.position.set(1, 1, 1);
+  scene.add(directionalLight);
+  
+  const backLight = new THREE.DirectionalLight(0xffffff, 0.8); // 增加背光强度
+  backLight.position.set(-1, -1, -1);
+  scene.add(backLight);
+  
+  // 创建云朵
+  const cloudSpacing = 20;
+  const gridSize = 5;
+  
+  for (let i = 0; i < gridSize * gridSize * gridSize; i++) {
+    const x = (i % gridSize) * cloudSpacing - (gridSize * cloudSpacing) / 2;
+    const y = Math.floor(i / gridSize) % gridSize * cloudSpacing - (gridSize * cloudSpacing) / 2;
+    const z = Math.floor(i / (gridSize * gridSize)) * cloudSpacing - (gridSize * cloudSpacing) / 2;
+    
+    const cloud = createCloud(x, y, z);
+    clouds.push(cloud);
   }
+};
+
+// 处理窗口大小变化
+const onWindowResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
+// 处理鼠标移动
+const onDocumentMouseMove = (event) => {
+  mouseX = (event.clientX - windowHalfX) / 100;
+  mouseY = (event.clientY - windowHalfY) / 100;
+};
+
+// 动画循环
+const animate = () => {
+  animationFrameId = requestAnimationFrame(animate);
+  
+  // 平滑跟随鼠标
+  targetX = mouseX * 0.05;
+  targetY = mouseY * 0.05;
+  
+  // 更新相机旋转
+  camera.rotation.y += 0.05 * (targetX - camera.rotation.y);
+  camera.rotation.x += 0.05 * (targetY - camera.rotation.x);
+  
+  // 更新云朵位置和旋转
+  const time = Date.now() * 0.001;
+  
+  clouds.forEach(cloud => {
+    cloud.rotation.y += cloud.userData.rotationSpeed;
+    cloud.rotation.z += cloud.userData.rotationSpeed * 0.5;
+    cloud.position.x += Math.sin(time * cloud.userData.speed) * 0.015;
+    cloud.position.y += Math.cos(time * cloud.userData.speed * 1.2) * 0.01;
+    cloud.position.z += Math.sin(time * cloud.userData.speed * 0.8) * 0.005;
+  });
+  
+  renderer.render(scene, camera);
+};
+
+onMounted(() => {
+  initScene();
+  animate();
+  
+  window.addEventListener('resize', onWindowResize);
+  document.addEventListener('mousemove', onDocumentMouseMove);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onWindowResize);
+  document.removeEventListener('mousemove', onDocumentMouseMove);
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+  
+  // 清理Three.js资源
+  if (renderer) {
+    renderer.dispose();
+  }
+});
+</script>
+
+<style scoped>
+.scene-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.three-scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
