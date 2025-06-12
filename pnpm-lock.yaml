@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@amap/amap-jsapi-loader':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@element-plus/icons-vue':
         specifier: ^2.3.1
         version: 2.3.1(vue@3.5.16)
@@ -59,6 +62,9 @@ importers:
         version: 7.7.6(@nuxt/kit@3.17.4)(rollup@4.41.1)(vite@6.3.5(jiti@2.4.2)(sass-embedded@1.89.1))(vue@3.5.16)
 
 packages:
+
+  '@amap/amap-jsapi-loader@1.0.1':
+    resolution: {integrity: sha512-nPyLKt7Ow/ThHLkSvn2etQlUzqxmTVgK7bIgwdBRTg2HK5668oN7xVxkaiRe3YZEzGzfV2XgH5Jmu2T73ljejw==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -1569,6 +1575,8 @@ packages:
     engines: {node: '>=18'}
 
 snapshots:
+
+  '@amap/amap-jsapi-loader@1.0.1': {}
 
   '@ampproject/remapping@2.3.0':
     dependencies:
